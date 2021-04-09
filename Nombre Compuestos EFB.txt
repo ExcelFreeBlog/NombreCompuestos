@@ -1,0 +1,49 @@
+(Nombre as text) as list =>
+let    
+    NombreLista =
+    Text.SplitAny(Nombre, " "),
+
+    ppp =
+    List.Min (
+        List.PositionOfAny( 
+            NombreLista , 
+            {"de", "del", "y", "vda.", "san"},
+            2,
+            Comparer.FromCulture ( Culture.Current , true  )
+        )
+    ),
+
+    ParteCompuesta = 
+    try
+        if
+            List.Contains(
+                {"los", "las", "de", "la", "del", "lo", "san"},
+                NombreLista{ppp + 1},
+                Comparer.FromCulture( Culture.Current , true )
+            )
+        then
+            { NombreLista{ppp}& " " & NombreLista{ppp+1} & " " & NombreLista{ppp+2} }
+        else
+            { NombreLista{ppp}& " " & NombreLista{ppp+1}  }
+    otherwise
+        {},
+
+
+    NombreSimple =
+    List.Difference(
+        NombreLista,
+        Text.SplitAny( 
+            Text.Combine( { ParteCompuesta{0}? } ),
+            " " 
+        )
+    ),
+
+    Reordenacion = 
+    List.InsertRange(
+        NombreSimple ,
+        if ppp is null then 0 else ppp,
+        ParteCompuesta  
+    )
+
+in
+    Reordenacion
