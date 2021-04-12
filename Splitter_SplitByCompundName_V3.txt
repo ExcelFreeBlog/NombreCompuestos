@@ -1,0 +1,74 @@
+( Nombre as text ) as list =>
+let
+    Nombreenlista =
+    Text.SplitAny(Nombre, " "),
+
+    x = 0,
+
+    NombreFinal =
+    CicloDeReordenacion( Nombreenlista , x + 1),
+
+    CicloDeReordenacion =
+    ( NombreEnLista as list, x as number ) as list =>
+    if
+        x > 3
+    then
+        NombreEnLista
+    else
+        let
+            ppp = 
+            List.Min(
+                List.PositionOfAny(
+                    NombreEnLista,
+                    {"de", "del", "y", "vda.", "y"},
+                    2,
+                    Comparer.FromCulture ( Culture.Current , true )
+                )
+            ),
+
+            ParteCompuesta = 
+            try
+                if
+                    List.Contains(
+                        {"las", "los", "la", "lo", "de", "y", "san"},
+                        NombreEnLista{ ppp + 1 },
+                        Comparer.FromCulture ( Culture.Current , true )
+                    )
+                        and     List.Contains (
+                                    {"de", "del", "las", "los", "lo", "la", "y"},
+                                    NombreEnLista { ppp + 2},
+                                    Comparer.FromCulture ( Culture.Current , true )
+                                )
+                then
+                    { NombreEnLista{ppp} & " " & NombreEnLista{ppp+1} & " " & NombreEnLista{ppp+2} & " " & NombreEnLista{ppp+3} }
+                else if
+                    List.Contains(
+                        {"las", "los", "la", "lo", "de"},
+                        NombreEnLista{ ppp + 1 },
+                        Comparer.FromCulture ( Culture.Current , true )
+                    )
+                then            
+                    { NombreEnLista{ppp} & " " & NombreEnLista{ppp+1} & " " & NombreEnLista{ppp+2} }
+                else
+                    { NombreEnLista{ppp} & " " & NombreEnLista{ppp+1} }
+            otherwise
+            {},
+
+            NombreSimples = 
+            List.Difference(
+                NombreEnLista,
+                Text.SplitAny ( Text.Combine( { ParteCompuesta{0}? } ) , " " ) 
+            ),
+
+            Reordenacion =
+            List.InsertRange(
+                NombreSimples,
+                if ppp is null then 0 else ppp,
+                ParteCompuesta
+            )
+        in
+            @CicloDeReordenacion( Reordenacion, x + 1 )
+
+    
+in
+    NombreFinal
